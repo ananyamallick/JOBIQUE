@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOBIQUE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Pastel Theme Colors */
+        :root {
+            --bg-main: #FDF2E9; /* Light Creamy Orange */
+            --bg-card: #FFFFFF;
+            --primary: #E5AFAA; /* Muted Pink */
+            --primary-dark: #D88C9A;
+            --secondary: #F3E4C9; /* Soft Beige */
+            --text-dark: #4F4F4F;
+            --text-light: #828282;
+            --border-color: #E0E0E0;
+            --verdict-high-bg: #E6F4EA;
+            --verdict-high-text: #27AE60;
+            --verdict-medium-bg: #FEF3E2;
+            --verdict-medium-text: #F2994A;
+            --verdict-low-bg: #FEEEEE;
+            --verdict-low-text: #EB5757;
+        }
+        /* Applying theme */
+        .bg-main { background-color: var(--bg-main); }
+        .bg-card { background-color: var(--bg-card); }
+        .bg-primary { background-color: var(--primary); }
+        .hover\:bg-primary-dark:hover { background-color: var(--primary-dark); }
+        .text-dark { color: var(--text-dark); }
+        .text-light { color: var(--text-light); }
+        .border-theme { border-color: var(--border-color); }
+
+        /* Custom file input */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .file-input-wrapper:hover .file-input-label {
+            border-color: var(--primary);
+            background-color: var(--secondary);
+        }
+        /* Spinner */
+        .loader {
+            border: 5px solid var(--secondary);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-main text-dark antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <!-- Header -->
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-dark">JOBIQUE</h1>
+            <p class="text-lg text-light mt-2">Automating Resume Evaluation with Precision and Speed</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Left Panel: Inputs -->
+            <div class="bg-card p-6 md:p-8 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-bold mb-6">Evaluation Setup</h2>
+                
+                <!-- Job Description Upload -->
+                <div class="mb-6">
+                    <label class="block text-md font-medium mb-2">Upload Job Description</label>
+                    <div class="file-input-wrapper w-full">
+                        <input type="file" id="jd-file" accept=".pdf,.docx">
+                        <div class="file-input-label text-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span id="jd-file-name">Click to upload JD (PDF or DOCX)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resume Upload -->
+                <div class="mb-6">
+                    <label class="block text-md font-medium mb-2">Upload Candidate's Resume</label>
+                    <div class="file-input-wrapper w-full">
+                        <input type="file" id="resume-file" accept=".pdf,.docx">
+                        <div class="file-input-label text-light">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span id="resume-file-name">Click to upload resume (PDF or DOCX)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analyze Button -->
+                <div class="mt-8">
+                    <button id="analyze-btn" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-dark">
+                        Analyze Resume
+                    </button>
+                </div>
+                 <!-- Error Message Box -->
+                <div id="error-box" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                    <p id="error-message"></p>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results -->
+            <div id="results-panel" class="bg-card p-6 md:p-8 rounded-2xl shadow-lg flex items-center justify-center">
+                <!-- Initial State -->
+                <div id="initial-state" class="text-center text-light">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-24 w-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 class="mt-4 text-xl font-medium text-dark">Analysis Report</h3>
+                    <p class="mt-1">Your detailed analysis will appear here.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="hidden text-center">
+                    <div class="loader mx-auto"></div>
+                    <p class="mt-4 text-lg font-medium">Analyzing... Please wait.</p>
+                </div>
+
+                <!-- Results State -->
+                <div id="results-state" class="hidden w-full">
+                    <h2 class="text-2xl font-bold mb-4">Relevance Report</h2>
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-6 p-4 bg-secondary rounded-lg">
+                        <div>
+                            <p class="text-md text-light">Candidate Fit</p>
+                            <p id="candidate-name" class="text-xl font-bold text-dark">Jane Doe</p>
+                        </div>
+                        <div class="text-center my-4 md:my-0">
+                            <p class="text-md text-light">Relevance Score</p>
+                            <p id="relevance-score" class="text-5xl font-bold text-primary-dark">88%</p>
+                        </div>
+                        <div>
+                            <p class="text-md text-light text-right">Verdict</p>
+                            <span id="verdict" class="px-4 py-1.5 text-lg font-semibold rounded-full">High</span>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Breakdown -->
+                    <div class="space-y-6">
+                        <!-- Matched Skills -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                                Matched Skills & Keywords
+                            </h3>
+                            <div id="matched-skills" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <!-- Missing Skills -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                </svg>
+                                Highlighted Gaps
+                            </h3>
+                            <div id="missing-skills" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <!-- Suggestions -->
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M10 2a6 6 0 00-6 6v3.586l-1.707 1.707A1 1 0 003 15v4a1 1 0 001 1h12a1 1 0 001-1v-4a1 1 0 00-.293-.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                </svg>
+                                Personalized Suggestions
+                            </h3>
+                            <ul id="suggestions" class="list-disc list-inside text-light space-y-1"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Element References ---
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const resumeFileInput = document.getElementById('resume-file');
+        const resumeFileNameSpan = document.getElementById('resume-file-name');
+        
+        const jdFileInput = document.getElementById('jd-file');
+        const jdFileNameSpan = document.getElementById('jd-file-name');
+        
+        const initialState = document.getElementById('initial-state');
+        const loadingState = document.getElementById('loading-state');
+        const resultsState = document.getElementById('results-state');
+
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+
+        const relevanceScoreEl = document.getElementById('relevance-score');
+        const verdictEl = document.getElementById('verdict');
+        const candidateNameEl = document.getElementById('candidate-name');
+        const matchedSkillsEl = document.getElementById('matched-skills');
+        const missingSkillsEl = document.getElementById('missing-skills');
+        const suggestionsEl = document.getElementById('suggestions');
+
+        // --- Event Listeners ---
+        
+        function updateFileName(input, span, defaultText) {
+             if (input.files.length > 0) {
+                span.textContent = input.files[0].name;
+                span.classList.remove('text-light');
+                span.classList.add('text-dark', 'font-medium');
+            } else {
+                span.textContent = defaultText;
+                span.classList.add('text-light');
+                span.classList.remove('text-dark', 'font-medium');
+            }
+        }
+        
+        resumeFileInput.addEventListener('change', () => updateFileName(resumeFileInput, resumeFileNameSpan, 'Click to upload resume (PDF or DOCX)'));
+        jdFileInput.addEventListener('change', () => updateFileName(jdFileInput, jdFileNameSpan, 'Click to upload JD (PDF or DOCX)'));
+
+        // Main analysis button click handler
+        analyzeBtn.addEventListener('click', () => {
+            // 1. Validate inputs
+            const jdFile = jdFileInput.files[0];
+            const resumeFile = resumeFileInput.files[0];
+
+            if (!jdFile || !resumeFile) {
+                showError('Please upload both a job description file and a resume file.');
+                return;
+            }
+            hideError();
+
+            // 2. Switch to loading state
+            initialState.classList.add('hidden');
+            resultsState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            // 3. SIMULATE AI ANALYSIS (replace with actual API call)
+            setTimeout(() => {
+                const mockResults = generateMockAnalysis(resumeFile.name);
+                displayResults(mockResults);
+                
+                // 4. Switch to results state
+                loadingState.classList.add('hidden');
+                resultsState.classList.remove('hidden');
+            }, 2500); // Simulate a 2.5 second network delay
+        });
+
+        // --- UI Functions ---
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorBox.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorBox.classList.add('hidden');
+        }
+
+        function displayResults(results) {
+            // Score and Verdict
+            relevanceScoreEl.textContent = `${results.score}%`;
+            verdictEl.textContent = results.verdict;
+            
+            // Dynamically set verdict colors
+            verdictEl.className = 'px-4 py-1.5 text-lg font-semibold rounded-full'; // Reset classes
+            if (results.verdict === 'High') {
+                verdictEl.classList.add('bg-verdict-high-bg', 'text-verdict-high-text');
+            } else if (results.verdict === 'Medium') {
+                verdictEl.classList.add('bg-verdict-medium-bg', 'text-verdict-medium-text');
+            } else {
+                verdictEl.classList.add('bg-verdict-low-bg', 'text-verdict-low-text');
+            }
+
+            candidateNameEl.textContent = results.candidateName;
+
+            // Populate skills
+            matchedSkillsEl.innerHTML = results.matchedSkills.map(skill => 
+                `<span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`
+            ).join('');
+            
+            missingSkillsEl.innerHTML = results.missingSkills.map(skill => 
+                `<span class="bg-red-100 text-red-800 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`
+            ).join('');
+
+            // Populate suggestions
+            suggestionsEl.innerHTML = results.suggestions.map(suggestion => 
+                `<li>${suggestion}</li>`
+            ).join('');
+        }
+
+        // --- MOCK DATA GENERATION ---
+        // This function simulates the output of your AI backend.
+        function generateMockAnalysis(fileName) {
+            const score = Math.floor(Math.random() * 51) + 45; // Random score between 45 and 95
+            let verdict = 'Low';
+            if (score > 80) verdict = 'High';
+            else if (score > 60) verdict = 'Medium';
+
+            const allSkills = ['Python', 'Data Analysis', 'Machine Learning', 'SQL', 'Tableau', 'Communication', 'Project Management', 'Cloud (AWS/Azure)', 'Git', 'Agile Methodologies'];
+            const matchedCount = Math.floor((score / 100) * allSkills.length);
+            
+            // Shuffle and split skills
+            const shuffledSkills = allSkills.sort(() => 0.5 - Math.random());
+            const matchedSkills = shuffledSkills.slice(0, matchedCount);
+            const missingSkills = shuffledSkills.slice(matchedCount);
+
+            const suggestions = [
+                `Highlight projects related to ${missingSkills[0] || 'Data Visualization'} to better match the job description.`,
+                `Consider adding a certification in ${missingSkills[1] || 'Cloud Computing'} to strengthen your profile.`,
+                "Expand on your 'Project Management' experience with specific examples of successful outcomes."
+            ];
+
+            return {
+                score,
+                verdict,
+                candidateName: fileName.split('.')[0].replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()), // Cleans up file name
+                matchedSkills,
+                missingSkills,
+                suggestions
+            };
+        }
+    });
+</script>
+
+
+</body>
+</html>
+
